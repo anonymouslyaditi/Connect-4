@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Connect-4 Win Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .player {
+            border: 1px solid #ccc;
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+        }
+        .log {
+            background: #f5f5f5;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .log-entry {
+            margin: 5px 0;
+            padding: 5px;
+            border-left: 3px solid #007bff;
+            background: white;
+        }
+        .log-entry.error {
+            border-left-color: #dc3545;
+        }
+        .log-entry.success {
+            border-left-color: #28a745;
+        }
+    </style>
+</head>
+<body>
+    <h1>Connect-4 Win Test</h1>
+    <p>This page will simulate two players and create a winning condition to test the bug.</p>
+    
+    <div class="player">
+        <h3>Player 1: Alice</h3>
+        <button onclick="connectPlayer1()">Connect Alice</button>
+        <button onclick="makeMove(ws1, 0)">Move Col 0</button>
+        <button onclick="makeMove(ws1, 1)">Move Col 1</button>
+        <button onclick="makeMove(ws1, 2)">Move Col 2</button>
+        <button onclick="makeMove(ws1, 3)">Move Col 3</button>
+        <button onclick="makeMove(ws1, 4)">Move Col 4</button>
+        <button onclick="makeMove(ws1, 5)">Move Col 5</button>
+        <button onclick="makeMove(ws1, 6)">Move Col 6</button>
+    </div>
+    
+    <div class="player">
+        <h3>Player 2: Bob</h3>
+        <button onclick="connectPlayer2()">Connect Bob</button>
+        <button onclick="makeMove(ws2, 0)">Move Col 0</button>
+        <button onclick="makeMove(ws2, 1)">Move Col 1</button>
+        <button onclick="makeMove(ws2, 2)">Move Col 2</button>
+        <button onclick="makeMove(ws2, 3)">Move Col 3</button>
+        <button onclick="makeMove(ws2, 4)">Move Col 4</button>
+        <button onclick="makeMove(ws2, 5)">Move Col 5</button>
+        <button onclick="makeMove(ws2, 6)">Move Col 6</button>
+    </div>
+    
+    <div>
+        <h3>Quick Test</h3>
+        <button onclick="autoWinTest()">Auto Win Test (Alice wins horizontally)</button>
+    </div>
+    
+    <div class="log" id="log"></div>
+    
+    <script>
+        let ws1 = null;
+        let ws2 = null;
+        let gameId = null;
+        
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('log');
+            const entry = document.createElement('div');
+            entry.className = 'log-entry ' + type;
+            entry.textContent = new Date().toLocaleTimeString() + ' - ' + message;
+            logDiv.appendChild(entry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+            console.log(message);
+        }
+        
+        function connectPlayer1() {
+            ws1 = new WebSocket('ws://localhost:8080/ws');
+            ws1.onopen = () => {
+                log('Alice connected', 'success');
+                ws1.send(JSON.stringify({type: 'join', username: 'Alice'}));
+            };
+            ws1.onmessage = (ev) => {
+                const msg = JSON.parse(ev.data);
+                log('Alice received: ' + JSON.stringify(msg));
+                if (msg.type === 'start') {
+                    gameId = msg.gameId;
+                    log('Game started! ID: ' + gameId, 'success');
+                }
+                if (msg.type === 'state' && msg.status === 'finished') {
+                    log('GAME FINISHED! Result: ' + msg.result, 'success');
+                    log('Result type: ' + typeof msg.result);
+                    log('Result === "draw": ' + (msg.result === 'draw'));
+                    log('Result === "Alice": ' + (msg.result === 'Alice'));
+                    log('Result === "Bob": ' + (msg.result === 'Bob'));
+                }
+            };
+            ws1.onerror = (err) => log('Alice error: ' + err, 'error');
+            ws1.onclose = () => log('Alice disconnected', 'error');
+        }
+        
+        function connectPlayer2() {
+            ws2 = new WebSocket('ws://localhost:8080/ws');
+            ws2.onopen = () => {
+                log('Bob connected', 'success');
+                ws2.send(JSON.stringify({type: 'join', username: 'Bob'}));
+            };
+            ws2.onmessage = (ev) => {
+                const msg = JSON.parse(ev.data);
+                log('Bob received: ' + JSON.stringify(msg));
+                if (msg.type === 'start') {
+                    gameId = msg.gameId;
+                    log('Game started! ID: ' + gameId, 'success');
+                }
+                if (msg.type === 'state' && msg.status === 'finished') {
+                    log('GAME FINISHED! Result: ' + msg.result, 'success');
+                    log('Result type: ' + typeof msg.result);
+                    log('Result === "draw": ' + (msg.result === 'draw'));
+                    log('Result === "Alice": ' + (msg.result === 'Alice'));
+                    log('Result === "Bob": ' + (msg.result === 'Bob'));
+                }
+            };
+            ws2.onerror = (err) => log('Bob error: ' + err, 'error');
+            ws2.onclose = () => log('Bob disconnected', 'error');
+        }
+        
+        function makeMove(ws, col) {
+            if (!ws || ws.readyState !== WebSocket.OPEN) {
+                log('WebSocket not connected!', 'error');
+                return;
+            }
+            if (!gameId) {
+                log('Game not started yet!', 'error');
+                return;
+            }
+            ws.send(JSON.stringify({type: 'move', gameId: gameId, col: col}));
+            log('Sent move to column ' + col);
+        }
+        
+        function autoWinTest() {
+            log('Starting auto win test...', 'success');
+            
+            // Connect both players
+            connectPlayer1();
+            
+            setTimeout(() => {
+                connectPlayer2();
+                
+                // Wait for game to start, then make moves
+                setTimeout(() => {
+                    log('Making moves for horizontal win...', 'success');
+                    
+                    // Alice plays column 0 (Player 1 - Red)
+                    setTimeout(() => makeMove(ws1, 0), 500);
+                    
+                    // Bob plays column 0 (Player 2 - Yellow)
+                    setTimeout(() => makeMove(ws2, 0), 1000);
+                    
+                    // Alice plays column 1
+                    setTimeout(() => makeMove(ws1, 1), 1500);
+                    
+                    // Bob plays column 1
+                    setTimeout(() => makeMove(ws2, 1), 2000);
+                    
+                    // Alice plays column 2
+                    setTimeout(() => makeMove(ws1, 2), 2500);
+                    
+                    // Bob plays column 2
+                    setTimeout(() => makeMove(ws2, 2), 3000);
+                    
+                    // Alice plays column 3 - THIS SHOULD WIN!
+                    setTimeout(() => {
+                        log('Alice making winning move in column 3...', 'success');
+                        makeMove(ws1, 3);
+                    }, 3500);
+                    
+                }, 1000);
+            }, 500);
+        }
+    </script>
+</body>
+</html>
+
