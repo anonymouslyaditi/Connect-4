@@ -127,8 +127,12 @@ This will start:
 ## Game Features
 
 ### Core Gameplay
+- **Three game modes**:
+  - **Quick Match** - Fast matchmaking to find an opponent quickly or else play against the bot after the 15 seconds timeout
+  - **Create Room** - Create a private room for multiplayer games
+  - **Browse Rooms** - Join one of the available rooms created by other players
 - **Real-time multiplayer** via WebSockets
-- **Smart matchmaking** with 10-second timeout (configurable)
+- **Smart matchmaking** with 15-second timeout (configurable)
 - **Competitive AI bot** with strategic decision-making (blocks wins, creates opportunities)
 - **Reconnection support** - Players can rejoin within 30 seconds (configurable)
 - **Automatic forfeit** if player doesn't reconnect in time
