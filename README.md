@@ -47,7 +47,7 @@ This will download all required Go packages including:
 
 The project uses environment variables for configuration. You can either:
 
-**Option A: Use the provided `.env.example` file**
+Use the provided `.env.example` file
 
 ```bash
 # Copy the example file
@@ -56,20 +56,11 @@ cp .env.example .env
 # Edit .env with your preferred settings
 ```
 
-**Option B: Set environment variables manually**
-
-See the [Configuration](#️-configuration) section below for all available variables.
-
 ### Step 4: Optional Services Setup
 
 #### PostgreSQL Setup (Optional)
 
 If you want to use PostgreSQL for persistence:
-
-**Using Docker:**
-```bash
-docker-compose up -d postgres
-```
 
 **Manual Installation:**
 1. Install PostgreSQL 12+
@@ -93,11 +84,6 @@ The required tables will be created automatically on first run.
 
 If you want to enable real-time analytics:
 
-**Using Docker:**
-```bash
-docker-compose up -d zookeeper kafka
-```
-
 **Manual Installation:**
 1. Install Apache Kafka
 2. Start Zookeeper and Kafka broker
@@ -107,14 +93,6 @@ docker-compose up -d zookeeper kafka
    export KAFKA_BROKERS=localhost:9092
    export KAFKA_TOPIC=game-analytics
    ```
-
-#### Using Docker Compose for All Services
-
-To run PostgreSQL, Kafka, and Zookeeper together:
-
-```bash
-docker-compose up -d
-```
 
 This will start:
 - PostgreSQL on port 5432
@@ -260,19 +238,6 @@ export RECONNECT_TIMEOUT=30
 # Start the server
 go run ./server
 ```
-
-### Method 6: Using Docker
-
-Build and run with Docker:
-
-```bash
-# Build the image
-docker build -t connect4-server .
-
-# Run the container
-docker run -p 8080:8080 connect4-server
-```
-
 ### Playing the Game
 
 Once the server is running:
@@ -580,7 +545,7 @@ FROM leaderboard;
 
 If using Kafka, you can monitor events using:
 
-1. **Kafka UI** (included in docker-compose):
+1. **Kafka UI**:
    - Access at `http://localhost:8090`
    - View topics, messages, and consumer groups
 
