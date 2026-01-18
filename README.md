@@ -4,6 +4,9 @@ A production-ready, real-time multiplayer Connect-4 game server built with Go, f
 
 ---
 
+## Live Link
+https://connect-4-2-w7fy.onrender.com/
+
 ##  Table of Contents
 - [Setup Instructions](#-setup-instructions)
 - [Game Features](#-game-features)
